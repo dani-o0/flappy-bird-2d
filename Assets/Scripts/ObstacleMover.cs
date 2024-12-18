@@ -2,8 +2,13 @@ using UnityEngine;
 
 public class ObstacleMover : MonoBehaviour
 {
-    public float speed = 2f; // Velocidad de movimiento
+    public float speed = 2f;
 
+    void Start()
+    {
+        Invoke("DestroyInvoke", 8.0f);
+    }
+    
     void Update()
     {
         if (!GameManager.Instance.IsPlaying())
@@ -11,12 +16,9 @@ public class ObstacleMover : MonoBehaviour
         
         transform.Translate(Vector2.left * speed * Time.deltaTime);
     }
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    
+    private void DestroyInvoke()
     {
-        if (collision.CompareTag("DestroyZone"))
-        {
-            Destroy(gameObject);
-        }
+        Destroy(gameObject);
     }
 }

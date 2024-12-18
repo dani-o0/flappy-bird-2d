@@ -6,7 +6,6 @@ TagManager:
   tags:
   - Limit
   - Score
-  - DestroyZone
   layers:
   - Default
   - TransparentFX
