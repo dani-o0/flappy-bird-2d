@@ -6,10 +6,10 @@ public class ObstacleMover : MonoBehaviour
 
     void Update()
     {
-        if (!GameManager.Instance.IsGameOver())
-        {
-            transform.Translate(Vector2.left * speed * Time.deltaTime);
-        }
+        if (!GameManager.Instance.IsPlaying())
+            return;
+        
+        transform.Translate(Vector2.left * speed * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

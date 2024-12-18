@@ -10,7 +10,8 @@ public class ObstacleSpawner : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.Instance.IsGameOver()) return;
+        if (!GameManager.Instance.IsPlaying())
+            return;
 
         timer += Time.deltaTime;
 

@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class ScoreZone : MonoBehaviour
 {
-    private bool hasScored = false; // Para evitar puntos duplicados
+    private bool hasScored = false;
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision) 
     {
         if (!hasScored && collision.CompareTag("Player"))
         {
