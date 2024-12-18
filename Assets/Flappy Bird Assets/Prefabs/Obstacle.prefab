@@ -398,3 +398,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d34e93dd71767d4bb11894c9b4131c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scoreClip: {fileID: 8300000, guid: 1ea02d581ce7cb1469f2abc61d6fdce8, type: 3}

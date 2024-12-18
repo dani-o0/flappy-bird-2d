@@ -1,6 +1,6 @@
 using TMPro;
+using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -37,6 +37,12 @@ public class GameManager : MonoBehaviour
     private Button btnRestart;
     private Button btnMenu;
 
+    [SerializeField] private AudioClip menuMusic;
+    [SerializeField] private AudioClip playMusic;
+
+    [SerializeField] private AudioClip winClip;
+    [SerializeField] private AudioClip looseClip;
+
     void Awake()
     {
         if (Instance == null)
@@ -50,9 +56,28 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        PlayerPrefs.SetInt("BestScore", 0);
+    }
+
+    public bool playMenuMusic = true;
+    public bool playPlayingMusic = false;
+    public bool playEndAudio;
+    
     void Update()
     {
         UpdateObjectReferences();
+
+        if (playMenuMusic)
+        {
+            Invoke("PlayMenuMusic", 0.5f);
+        }
+
+        if (playPlayingMusic)
+        {
+            Invoke("PlayPlayingMusic", 0.5f);
+        }
         
         switch (gameState)
         {
@@ -63,8 +88,10 @@ public class GameManager : MonoBehaviour
                 objGameOver.SetActive(false);
                 
                 objPlayer.SetActive(false);
+                
+                int bestScore = PlayerPrefs.GetInt("BestScore", 0);
 
-                bestText.text = "Best: " + GetBestScore();
+                bestText.text = "Best: " + bestScore;
                 
                 break;
             }
@@ -83,9 +110,30 @@ public class GameManager : MonoBehaviour
                 objMenu.SetActive(false);
                 objPlaying.SetActive(false);
                 objGameOver.SetActive(true);
+                
+                int bestScore = PlayerPrefs.GetInt("BestScore", 0);
+
+                if (score >= bestScore)
+                {
+                    if (playEndAudio)
+                    {
+                        SoundManager.Instance.PlaySfx(winClip);
+                        playEndAudio = false;
+                    }
+                    PlayerPrefs.SetInt("BestScore", score);
+                }
+                else
+                {
+                    if (playEndAudio)
+                    {
+                        SoundManager.Instance.PlaySfx(looseClip);
+                        playEndAudio = false;
+                    }
+                }
 
                 endScoreText.text = "Score: " + score;
-                endBestText.text = "Best: " + GetBestScore();
+                endBestText.text = "Best: " + bestScore;
+                
                 break;
             }
         }
@@ -94,17 +142,22 @@ public class GameManager : MonoBehaviour
     public void StartPlaying()
     {
         gameState = GameState.STATE_PLAYING;
+        playPlayingMusic = true;
     }
 
     public void RestartGame()
     {
         gameState = GameState.STATE_PLAYING;
+        score = 0;
+        playPlayingMusic = true;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void ReturnMenu()
     {
         gameState = GameState.STATE_MENU;
+        score = 0;
+        playMenuMusic = true;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -142,19 +195,16 @@ public class GameManager : MonoBehaviour
         return gameState;
     }
 
-    private int GetBestScore()
+    private void PlayMenuMusic()
     {
-        int storedScore = PlayerPrefs.GetInt("BestScore", 0);
+        SoundManager.Instance.PlayMusic(menuMusic);
+        playMenuMusic = false;
+    }
 
-        if (score > storedScore)
-        {
-            PlayerPrefs.SetInt("BestScore", score);
-            return score;
-        }
-        else
-        {
-            return storedScore;
-        }
+    private void PlayPlayingMusic()
+    {
+        SoundManager.Instance.PlayMusic(playMusic);
+        playPlayingMusic = false;
     }
 
     private void UpdateObjectReferences()
@@ -173,9 +223,10 @@ public class GameManager : MonoBehaviour
         if (!bestText) 
             bestText = GameObject.Find("BestScore").GetComponent<TMP_Text>();
         if (!btnPlay)
+        {
             btnPlay = GameObject.Find("Play").GetComponent<Button>();
-        if (!HasOnClickListeners(btnPlay))
-            btnPlay.onClick.AddListener(StartPlaying);
+            btnPlay.onClick.AddListener(delegate{StartPlaying();});
+        }
         
         // Playing screen
         if (!scoreText)
@@ -187,19 +238,14 @@ public class GameManager : MonoBehaviour
         if (!endBestText)
             endBestText = GameObject.Find("EndBestScore").GetComponent<TMP_Text>();
         if (!btnRestart)
+        {
             btnRestart = GameObject.Find("Restart").GetComponent<Button>();
-        if (!HasOnClickListeners(btnRestart))
-            btnRestart.onClick.AddListener(RestartGame);
+            btnRestart.onClick.AddListener(delegate{RestartGame();});
+        }
         if (!btnMenu)
+        {
             btnMenu = GameObject.Find("Menu").GetComponent<Button>();
-        if (HasOnClickListeners(btnMenu))
-            btnMenu.onClick.AddListener(ReturnMenu);
-    }
-    
-    private bool HasOnClickListeners(Button button)
-    {
-        UnityEvent onClickEvent = button.onClick;
-
-        return onClickEvent.GetPersistentEventCount() > 0;
+            btnMenu.onClick.AddListener(delegate{ReturnMenu();});
+        }
     }
 }

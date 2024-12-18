@@ -7,6 +7,9 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private float rotacionMaxima = 45f;
     private float velocidadRotacion = 5f;
+
+    [SerializeField] private AudioClip jumpClip;
+    [SerializeField] private AudioClip gotHitClip;
     
     void Start()
     {
@@ -32,6 +35,7 @@ public class PlayerController : MonoBehaviour
     {
         rb.velocity = Vector2.zero;
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        SoundManager.Instance.PlaySfx(jumpClip);
     }
 
     public void GotHit()
@@ -40,6 +44,7 @@ public class PlayerController : MonoBehaviour
         
         rb.velocity = Vector2.zero;
         rb.simulated = false;
+        SoundManager.Instance.PlaySfx(gotHitClip);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -48,6 +53,8 @@ public class PlayerController : MonoBehaviour
             return;
         
         GotHit();
+
+        GameManager.Instance.playEndAudio = true;
         GameManager.Instance.SetGameState(GameState.STATE_GAMEOVER);
     }
 }
